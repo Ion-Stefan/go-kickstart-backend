@@ -31,38 +31,70 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 
 // handleLogin handles the login request
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
+	// Get the payload from the request
+	var user types.LoginUserPayload
+	// Parse the JSON payload
+	if err := utils.ParseJson(r, &user); err != nil {
+		// If there is an error, write the error to the response
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+	// Validate the payload
+	if err := utils.Validate.Struct(user); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid or missing body: %v", errors))
+		return
+	}
+
+	// Check if the user already exists
+	u, err := h.store.GetUserByEmail(user.Email)
+	if err != nil {
+		fmt.Println(u.CreatedAt, u.FirstName, u.LastName, u.Email, u.Password, u.ID)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid"))
+		return
+	}
+	if !auth.ComparePasswords([]byte(u.Password), user.Password) {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found or invalid email or invalid password"))
+		return
+	}
+	println(u.Password)
+	println(user.Password)
+
+	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": ""})
 }
 
 // handleRegister handles the register request
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	// Get the payload from the request
-	var payload types.RegisterUserPayload
+	var user types.RegisterUserPayload
 	// Parse the JSON payload
-	if err := utils.ParseJson(r, &payload); err != nil {
+	if err := utils.ParseJson(r, &user); err != nil {
 		// If there is an error, write the error to the response
 		utils.WriteError(w, http.StatusBadRequest, err)
+		return
 	}
 	// Validate the payload
-	if err := utils.Validate.Struct(payload); err != nil {
+	if err := utils.Validate.Struct(user); err != nil {
 		error := err.(validator.ValidationErrors)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", error))
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid or missing body: %v", error))
 		return
 	}
 
 	// Check if the user already exists
-	_, err := h.store.GetUserByEmail(payload.Email)
+	_, err := h.store.GetUserByEmail(user.Email)
 	if err == nil {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with email: %s already exists", payload.Email))
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with email: %s already exists", user.Email))
 		return
 	}
 
-	hashedPassword, _ := auth.HashPassword(payload.Password)
+	// Hash the password
+	hashedPassword, _ := auth.HashPassword(user.Password)
 
 	// Create a new user
 	err = h.store.CreateUser(types.User{
-		FirstName: payload.FirstName,
-		LastName:  payload.LastName,
-		Email:     payload.Email,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
 		Password:  hashedPassword,
 	})
 	if err != nil {
