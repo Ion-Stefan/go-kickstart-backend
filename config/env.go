@@ -16,6 +16,8 @@ type Config struct {
 	DBPassword string
 	DBAddress  string
 	DBName     string
+  JWTExpiration string
+  JWTSecret string
 }
 
 // Envs is the global variable that holds the configuration
@@ -33,6 +35,8 @@ func initConfig() Config {
 		DBPassword: getEnv("DB_PASSWORD"),
 		DBAddress:  fmt.Sprintf("%s:%s", getEnv("DB_HOST"), getEnv("DB_PORT")),
 		DBName:     getEnv("DB_NAME"),
+    JWTExpiration: getEnv("JWT_EXPIRATION"),
+    JWTSecret: getEnv("JWT_SECRET"),
 	}
 }
 
