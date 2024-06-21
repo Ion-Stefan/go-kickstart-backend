@@ -41,7 +41,7 @@ func (s *APIServer) Run() error {
 	// Create the item store
 	itemStore := item.NewStore(s.db)
 	// Create the item handler
-	itemHandler := item.NewHandler(itemStore)
+	itemHandler := item.NewHandler(itemStore, userStore)
 	// Register the item routes
 	itemHandler.RegisterRoutes(subrouter)
 

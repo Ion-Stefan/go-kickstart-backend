@@ -59,12 +59,12 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-  secret := []byte(config.Envs.JWTSecret)
-  token, err := auth.CreateJWT(secret, u.ID)
-  if err != nil {
-    utils.WriteError(w, http.StatusInternalServerError, err)
-    return
-  }
+	secret := []byte(config.Envs.JWTSecret)
+	token, err := auth.CreateJWT(secret, u.ID)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
 
 	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
 }

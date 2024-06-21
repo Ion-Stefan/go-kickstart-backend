@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Ion-Stefan/go-kickstart-backend/service/auth"
 	"github.com/Ion-Stefan/go-kickstart-backend/types"
 	"github.com/Ion-Stefan/go-kickstart-backend/utils"
 	"github.com/go-playground/validator/v10"
@@ -11,16 +12,17 @@ import (
 )
 
 type Handler struct {
-	store types.ItemStore
+	store     types.ItemStore
+	userStore types.UserStore
 }
 
-func NewHandler(store types.ItemStore) Handler {
-	return Handler{store: store}
+func NewHandler(store types.ItemStore, userStore types.UserStore) Handler {
+	return Handler{store: store, userStore: userStore}
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/items", h.GetItems).Methods("GET")
-	router.HandleFunc("/items", h.CreateItem).Methods("POST")
+	router.HandleFunc("/items", auth.WithJWTAuth(h.GetItems, h.userStore)).Methods("GET")
+	router.HandleFunc("/items", auth.WithJWTAuth(h.CreateItem, h.userStore)).Methods("POST")
 }
 
 func (h *Handler) GetItems(w http.ResponseWriter, r *http.Request) {
