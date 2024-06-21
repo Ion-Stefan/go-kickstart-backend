@@ -19,6 +19,25 @@ type UserStore interface {
 	CreateUser(User) error
 }
 
+type ItemStore interface {
+	GetItems() (*[]Item, error)
+	CreateItem(Item) error
+}
+
+type Item struct {
+	CreatedAt   time.Time `json:"createdAt"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	ImageURL    string    `json:"imageURL"`
+	ID          int       `json:"id"`
+}
+
+type ItemPayload struct {
+	Name        string `json:"name" validate:"required"`
+	Description string `json:"description" validate:"required"`
+	ImageURL    string `json:"imageURL"`
+}
+
 type RegisterUserPayload struct {
 	FirstName string `json:"firstName" validate:"required"`
 	LastName  string `json:"lastName" validate:"required"`

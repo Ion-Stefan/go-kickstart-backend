@@ -31,7 +31,7 @@ func main() {
 	// Initialize the storage
 	initStorage(db)
 
-	// Create a new API server on the port specified in the .env file
+	// Create the API server on the port specified in the .env file
 	server := api.NewAPIServer(fmt.Sprintf(":%v", config.Envs.Port), db)
 	// Run the server
 	if err := server.Run(); err != nil {

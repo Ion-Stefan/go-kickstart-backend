@@ -16,11 +16,16 @@ func NewStore(db *sql.DB) *Store {
 }
 
 func (s *Store) CreateUser(user types.User) error {
-	_, err := s.db.Exec("INSERT INTO users (firstName, lastName, email, password) VALUES (?, ?, ?, ?)", user.FirstName, user.LastName, user.Email, user.Password)
+	_, err := s.db.Exec(
+		"INSERT INTO users (firstName, lastName, email, password) VALUES (?, ?, ?, ?)",
+		user.FirstName,
+		user.LastName,
+		user.Email,
+		user.Password,
+	)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -70,12 +75,12 @@ func scanRowsIntoUser(rows *sql.Rows) (*types.User, error) {
 	user := new(types.User)
 
 	err := rows.Scan(
-		&user.ID,
+		&user.CreatedAt,
 		&user.FirstName,
 		&user.LastName,
 		&user.Email,
 		&user.Password,
-		&user.CreatedAt,
+		&user.ID,
 	)
 	if err != nil {
 		return nil, err

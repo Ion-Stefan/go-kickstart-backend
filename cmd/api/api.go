@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Ion-Stefan/go-kickstart-backend/service/item"
 	"github.com/Ion-Stefan/go-kickstart-backend/service/user"
 	"github.com/gorilla/mux"
 )
@@ -15,7 +16,7 @@ type APIServer struct {
 	addr string
 }
 
-// Creates a new APIServer
+// Creates the APIServer
 func NewAPIServer(addr string, db *sql.DB) *APIServer {
 	return &APIServer{
 		addr: addr,
@@ -25,17 +26,24 @@ func NewAPIServer(addr string, db *sql.DB) *APIServer {
 
 // Run starts the APIServer
 func (s *APIServer) Run() error {
-	// Create a new router
+	// Create the router
 	router := mux.NewRouter()
-	// Create a subrouter for the API
+	// Create the subrouter for the API
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
 
-	// Create a new user store
+	// Create the user store
 	userStore := user.NewStore(s.db)
-	// Create a new user handler
+	// Create the user handler
 	userHandler := user.NewHandler(userStore)
 	// Register the user routes
 	userHandler.RegisterRoutes(subrouter)
+
+	// Create the item store
+	itemStore := item.NewStore(s.db)
+	// Create the item handler
+	itemHandler := item.NewHandler(itemStore)
+	// Register the item routes
+	itemHandler.RegisterRoutes(subrouter)
 
 	log.Println("Listening on", s.addr)
 
