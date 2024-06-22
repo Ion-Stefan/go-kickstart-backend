@@ -28,6 +28,8 @@ func NewAPIServer(addr string, db *sql.DB) *APIServer {
 func (s *APIServer) Run() error {
 	// Create the router
 	router := mux.NewRouter()
+	// Add the logger middleware
+	router.Use(LoggerMiddleware)
 	// Create the subrouter for the API
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
 

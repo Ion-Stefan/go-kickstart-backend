@@ -21,7 +21,8 @@ func NewHandler(store types.ItemStore, userStore types.UserStore) Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/items", auth.WithJWTAuth(h.GetItems, h.userStore)).Methods("GET")
+	router.HandleFunc("/items", h.GetItems).Methods("GET")
+	// Add the JWT middleware to the route
 	router.HandleFunc("/items", auth.WithJWTAuth(h.CreateItem, h.userStore)).Methods("POST")
 }
 
@@ -62,5 +63,5 @@ func (h *Handler) CreateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, nil)
+	utils.WriteJSON(w, http.StatusCreated, fmt.Sprintf("Item: '%s' created", item.Name))
 }
